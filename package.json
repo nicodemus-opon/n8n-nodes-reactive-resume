@@ -1,19 +1,22 @@
 {
-	"name": "n8n-nodes-reactive-resume",
-	"version": "0.1.0",
-	"description": "n8n community node for Reactive Resume (rxresu.me) – resumes, cover letters, job applications, PDF export.",
-	"license": "MIT",
-	"engines": {
-		"node": ">=20"
-	},
-	"homepage": "https://github.com/nicodemus-opon/n8n-nodes-reactive-resume",
+  "name": "n8n-nodes-reactive-resume",
+  "version": "0.1.0",
+  "description": "n8n community node for Reactive Resume (rxresu.me) – resumes, cover letters, job applications, PDF export.",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  },
+  "homepage": "https://github.com/nicodemus-opon/n8n-nodes-reactive-resume",
   "keywords": [
     "n8n-community-node-package",
     "reactive-resume",
     "rxresume",
     "resume"
   ],
-  "author": { "name": "Nicodemus Opon", "email": "nico@opon.dev" },
+  "author": {
+    "name": "Nicodemus Opon",
+    "email": "nico@opon.dev"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/nicodemus-opon/n8n-nodes-reactive-resume.git"
@@ -29,18 +32,27 @@
     "test": "node ./test/unit.js",
     "prepublishOnly": "n8n-node prerelease"
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "n8n": {
     "n8nNodesApiVersion": 1,
     "strict": true,
-    "credentials": ["dist/credentials/ReactiveResumeApi.credentials.js"],
-    "nodes": ["dist/nodes/ReactiveResume/ReactiveResume.node.js"]
+    "credentials": [
+      "dist/credentials/ReactiveResumeApi.credentials.js"
+    ],
+    "nodes": [
+      "dist/nodes/ReactiveResume/ReactiveResume.node.js"
+    ]
   },
   "devDependencies": {
     "@n8n/node-cli": "*",
     "eslint": "9.39.4",
     "prettier": "3.8.3",
+    "release-it": "^19.2.4",
     "typescript": "5.9.3"
   },
-  "peerDependencies": { "n8n-workflow": "*" }
+  "peerDependencies": {
+    "n8n-workflow": "*"
+  }
 }
