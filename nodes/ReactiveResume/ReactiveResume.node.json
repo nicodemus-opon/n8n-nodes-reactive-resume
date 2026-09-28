@@ -1,0 +1,18 @@
+{
+	"node": "n8n-nodes-react-resume.reactiveResume",
+	"codexVersion": "1.0",
+	"categories": ["Productivity", "Files"],
+	"alias": ["rxresume", "rxresu.me", "reactive-resume", "resume builder"],
+	"resources": {
+		"credentialDocumentation": [
+			{
+				"url": "https://docs.rxresu.me/guides/using-the-api"
+			}
+		],
+		"primaryDocumentation": [
+			{
+				"url": "https://docs.rxresu.me/api-reference"
+			}
+		]
+	}
+}

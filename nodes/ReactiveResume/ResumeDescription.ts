@@ -1,0 +1,268 @@
+import type { INodeProperties } from 'n8n-workflow';
+
+export const resumeOperations: INodeProperties[] = [
+	{
+		displayName: 'Operation',
+		name: 'operation',
+		type: 'options',
+		noDataExpression: true,
+		displayOptions: { show: { resource: ['resume'] } },
+		options: [
+			{ name: 'Create', value: 'create', action: 'Create a resume', description: 'Create a new resume' },
+			{ name: 'Delete', value: 'delete', action: 'Delete a resume', description: 'Permanently delete a resume' },
+			{ name: 'Download PDF', value: 'downloadPdf', action: 'Download a resume as PDF', description: 'Generate a PDF and return it as binary data' },
+			{ name: 'Duplicate', value: 'duplicate', action: 'Duplicate a resume', description: 'Create a copy of an existing resume' },
+			{ name: 'Get', value: 'get', action: 'Get a resume', description: 'Get a resume with its full data' },
+			{ name: 'Get Daily Statistics', value: 'getDailyStats', action: 'Get resume daily statistics', description: 'Per-day views and downloads over the last N days' },
+			{ name: 'Get Public Resume', value: 'getPublic', action: 'Get a public resume', description: 'Get a publicly shared resume by username and slug' },
+			{ name: 'Get Statistics', value: 'getStats', action: 'Get resume statistics', description: 'View and download totals for a resume' },
+			{ name: 'Import', value: 'import', action: 'Import a resume', description: 'Create a resume from ResumeData JSON' },
+			{ name: 'List', value: 'list', action: 'List resumes', description: 'List all resumes (metadata only)' },
+			{ name: 'List Tags', value: 'listTags', action: 'List resume tags', description: 'All unique tags across resumes' },
+			{ name: 'List Versions', value: 'listVersions', action: 'List resume versions', description: 'Version-history snapshots for a resume' },
+			{ name: 'Patch Data', value: 'patch', action: 'Patch resume data', description: 'Apply JSON Patch (RFC 6902) operations' },
+			{ name: 'Record Download', value: 'recordDownload', action: 'Record a public download', description: 'Record a visitor PDF download for a public resume' },
+			{ name: 'Remove Password', value: 'removePassword', action: 'Remove resume password', description: 'Remove public password protection' },
+			{ name: 'Restore Version', value: 'restoreVersion', action: 'Restore a resume version', description: 'Restore a previous version snapshot' },
+			{ name: 'Set Lock Status', value: 'setLock', action: 'Set resume lock status', description: 'Lock or unlock a resume' },
+			{ name: 'Set Password', value: 'setPassword', action: 'Set resume password', description: 'Password-protect the public resume' },
+			{ name: 'Update', value: 'update', action: 'Update a resume', description: 'Update top-level fields and/or full data' },
+			{ name: 'Verify Password', value: 'verifyPassword', action: 'Verify resume password', description: 'Verify a password-protected public resume' },
+		],
+		default: 'get',
+	},
+];
+
+export const resumeFields: INodeProperties[] = [
+	{
+		displayName: 'Resume ID',
+		name: 'resumeId',
+		type: 'string',
+		required: true,
+		default: '',
+		displayOptions: {
+			show: {
+				resource: ['resume'],
+				operation: [
+					'get',
+					'update',
+					'delete',
+					'patch',
+					'duplicate',
+					'setLock',
+					'listVersions',
+					'restoreVersion',
+					'downloadPdf',
+					'getStats',
+					'getDailyStats',
+					'setPassword',
+					'removePassword',
+				],
+			},
+		},
+		description: 'The ID of the resume',
+	},
+	// list
+	{
+		displayName: 'Tags (Comma-Separated)',
+		name: 'tags',
+		type: 'string',
+		default: '',
+		displayOptions: { show: { resource: ['resume'], operation: ['list'] } },
+		description: 'Filter by tags, e.g. engineering,2026',
+	},
+	{
+		displayName: 'Sort By',
+		name: 'sort',
+		type: 'options',
+		default: 'lastUpdatedAt',
+		displayOptions: { show: { resource: ['resume'], operation: ['list'] } },
+		options: [
+			{ name: 'Last Updated', value: 'lastUpdatedAt' },
+			{ name: 'Created', value: 'createdAt' },
+			{ name: 'Name', value: 'name' },
+		],
+	},
+	// create
+	{
+		displayName: 'Name',
+		name: 'name',
+		type: 'string',
+		required: true,
+		default: '',
+		displayOptions: { show: { resource: ['resume'], operation: ['create'] } },
+	},
+	{
+		displayName: 'Slug',
+		name: 'slug',
+		type: 'string',
+		required: true,
+		default: '',
+		displayOptions: { show: { resource: ['resume'], operation: ['create'] } },
+		description: 'Unique URL slug across your resumes',
+	},
+	{
+		displayName: 'Tags (Comma-Separated)',
+		name: 'tagsCreate',
+		type: 'string',
+		default: '',
+		displayOptions: { show: { resource: ['resume'], operation: ['create'] } },
+	},
+	{
+		displayName: 'With Sample Data',
+		name: 'withSampleData',
+		type: 'boolean',
+		default: false,
+		displayOptions: { show: { resource: ['resume'], operation: ['create'] } },
+	},
+	// update
+	{
+		displayName: 'Update Fields',
+		name: 'updateFields',
+		type: 'collection',
+		placeholder: 'Add Field',
+		default: {},
+		displayOptions: { show: { resource: ['resume'], operation: ['update'] } },
+		options: [
+			{ displayName: 'Data (JSON)', name: 'data', type: 'json', default: '', description: 'Full or partial ResumeData object. Leave empty to keep existing data.' },
+			{ displayName: 'Is Public', name: 'isPublic', type: 'boolean', default: false },
+			{ displayName: 'Name', name: 'name', type: 'string', default: '' },
+			{ displayName: 'Show Download Buttons', name: 'showDownloadButtons', type: 'boolean', default: true },
+			{ displayName: 'Slug', name: 'slug', type: 'string', default: '' },
+			{ displayName: 'Tags (Comma-Separated)', name: 'tags', type: 'string', default: '' },
+		],
+	},
+	// patch
+	{
+		displayName: 'Patch Operations (JSON)',
+		name: 'operations',
+		type: 'json',
+		required: true,
+		default: '[\n  {\n    "op": "replace",\n    "path": "/basics/name",\n    "value": "Jane Doe"\n  }\n]',
+		displayOptions: { show: { resource: ['resume'], operation: ['patch'] } },
+		description:
+			'Array of JSON Patch (RFC 6902) operations. Tip: GET the resume first to confirm paths, e.g. /basics/name or /sections/experience/items/-.',
+	},
+	{
+		displayName: 'Expected Updated At',
+		name: 'expectedUpdatedAt',
+		type: 'dateTime',
+		default: '',
+		displayOptions: { show: { resource: ['resume'], operation: ['patch'] } },
+		description: 'Optional optimistic-concurrency timestamp; patch applies only if the version still matches',
+	},
+	// import
+	{
+		displayName: 'Resume Data (JSON)',
+		name: 'resumeData',
+		type: 'json',
+		required: true,
+		default: '{}',
+		displayOptions: { show: { resource: ['resume'], operation: ['import'] } },
+		description: 'A ResumeData object, e.g. from a previously exported JSON file',
+	},
+	// duplicate
+	{
+		displayName: 'Duplicate Options',
+		name: 'duplicateOptions',
+		type: 'collection',
+		placeholder: 'Add Option',
+		default: {},
+		displayOptions: { show: { resource: ['resume'], operation: ['duplicate'] } },
+		options: [
+			{ displayName: 'Name', name: 'name', type: 'string', default: '' },
+			{ displayName: 'Slug', name: 'slug', type: 'string', default: '' },
+			{ displayName: 'Tags (Comma-Separated)', name: 'tags', type: 'string', default: '' },
+		],
+	},
+	// setLock
+	{
+		displayName: 'Locked',
+		name: 'locked',
+		type: 'boolean',
+		required: true,
+		default: true,
+		displayOptions: { show: { resource: ['resume'], operation: ['setLock'] } },
+		description: 'Whether the resume should be locked against edits',
+	},
+	// restoreVersion
+	{
+		displayName: 'Version ID',
+		name: 'versionId',
+		type: 'string',
+		required: true,
+		default: '',
+		displayOptions: { show: { resource: ['resume'], operation: ['restoreVersion'] } },
+	},
+	// downloadPdf
+	{
+		displayName: 'Target',
+		name: 'target',
+		type: 'options',
+		default: 'resume',
+		displayOptions: { show: { resource: ['resume'], operation: ['downloadPdf'] } },
+		options: [
+			{ name: 'Resume', value: 'resume' },
+			{ name: 'Cover Letter', value: 'cover-letter' },
+		],
+		description: 'Which document to render as PDF',
+	},
+	{
+		displayName: 'Binary Property',
+		name: 'binaryPropertyName',
+		type: 'string',
+		default: 'data',
+		required: true,
+		displayOptions: { show: { resource: ['resume'], operation: ['downloadPdf'] } },
+		description: 'Name of the binary property to store the PDF in',
+	},
+	// daily stats
+	{
+		displayName: 'Days',
+		name: 'days',
+		type: 'number',
+		typeOptions: { minValue: 1, maxValue: 365 },
+		default: 30,
+		displayOptions: { show: { resource: ['resume'], operation: ['getDailyStats'] } },
+		description: 'Number of days (UTC) to include in the zero-filled series',
+	},
+	// passwords
+	{
+		displayName: 'Password',
+		name: 'password',
+		type: 'string',
+		typeOptions: { password: true },
+		required: true,
+		default: '',
+		displayOptions: { show: { resource: ['resume'], operation: ['setPassword', 'verifyPassword'] } },
+		description: 'Between 6 and 64 characters',
+	},
+	{
+		displayName: 'Username',
+		name: 'username',
+		type: 'string',
+		required: true,
+		default: '',
+		displayOptions: {
+			show: {
+				resource: ['resume'],
+				operation: ['getPublic', 'verifyPassword', 'recordDownload'],
+			},
+		},
+		description: 'Owner username of the public resume',
+	},
+	{
+		displayName: 'Slug',
+		name: 'publicSlug',
+		type: 'string',
+		required: true,
+		default: '',
+		displayOptions: {
+			show: {
+				resource: ['resume'],
+				operation: ['getPublic', 'verifyPassword', 'recordDownload'],
+			},
+		},
+		description: 'Slug of the public resume',
+	},
+];

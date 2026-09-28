@@ -1,0 +1,178 @@
+import type { INodeProperties } from 'n8n-workflow';
+
+const stageOptions = [
+	{ name: 'Saved', value: 'saved' },
+	{ name: 'Applied', value: 'applied' },
+	{ name: 'Screening', value: 'screening' },
+	{ name: 'Interview', value: 'interview' },
+	{ name: 'Offer', value: 'offer' },
+	{ name: 'Rejected', value: 'rejected' },
+];
+
+export const applicationOperations: INodeProperties[] = [
+	{
+		displayName: 'Operation',
+		name: 'operation',
+		type: 'options',
+		noDataExpression: true,
+		displayOptions: { show: { resource: ['application'] } },
+		options: [
+			{ name: 'Bulk Delete', value: 'bulkDelete', action: 'Bulk delete applications', description: 'Permanently delete multiple applications' },
+			{ name: 'Bulk Import', value: 'bulkImport', action: 'Bulk import applications', description: 'Create many applications from parsed CSV rows' },
+			{ name: 'Bulk Update', value: 'bulkUpdate', action: 'Bulk update applications', description: 'Move stage or archive many applications' },
+			{ name: 'Create', value: 'create', action: 'Create a job application', description: 'Create a new application in the pipeline' },
+			{ name: 'Delete', value: 'delete', action: 'Delete an application', description: 'Permanently delete an application' },
+			{ name: 'Delete Timeline Entry', value: 'deleteTimelineEntry', action: 'Delete a timeline entry', description: 'Delete a note or older stage entry' },
+			{ name: 'Get', value: 'get', action: 'Get an application', description: 'Get a single application with full detail' },
+			{ name: 'List', value: 'list', action: 'List job applications', description: 'List applications, most recently updated first' },
+			{ name: 'List Tags', value: 'listTags', action: 'List application tags', description: 'Distinct tags across applications' },
+			{ name: 'Log Note', value: 'logNote', action: 'Log a timeline note', description: 'Append a free-text note to the timeline' },
+			{ name: 'Pipeline Stats', value: 'stats', action: 'Get pipeline statistics', description: 'Aggregate counts per stage and source' },
+			{ name: 'Update', value: 'update', action: 'Update a job application', description: 'Update fields or move pipeline stage' },
+			{ name: 'Update Timeline Entry', value: 'updateTimelineEntry', action: 'Update a timeline entry', description: 'Update a timeline entry date or note' },
+		],
+		default: 'list',
+	},
+];
+
+export const applicationFields: INodeProperties[] = [
+	{
+		displayName: 'Application ID',
+		name: 'applicationId',
+		type: 'string',
+		required: true,
+		default: '',
+		displayOptions: {
+			show: { resource: ['application'], operation: ['get', 'update', 'delete', 'logNote', 'updateTimelineEntry', 'deleteTimelineEntry'] },
+		},
+	},
+	// list
+	{
+		displayName: 'List Filters',
+		name: 'listFilters',
+		type: 'collection',
+		placeholder: 'Add Filter',
+		default: {},
+		displayOptions: { show: { resource: ['application'], operation: ['list'] } },
+		options: [
+			{ displayName: 'Include Archived', name: 'includeArchived', type: 'boolean', default: false },
+			{ displayName: 'Status', name: 'status', type: 'options', default: '', options: [{ name: 'All', value: '' }, ...stageOptions] },
+			{ displayName: 'Tags (Comma-Separated)', name: 'tags', type: 'string', default: '' },
+		],
+	},
+	// create
+	{
+		displayName: 'Company',
+		name: 'company',
+		type: 'string',
+		required: true,
+		default: '',
+		displayOptions: { show: { resource: ['application'], operation: ['create'] } },
+	},
+	{
+		displayName: 'Role',
+		name: 'role',
+		type: 'string',
+		required: true,
+		default: '',
+		displayOptions: { show: { resource: ['application'], operation: ['create'] } },
+	},
+	{
+		displayName: 'Additional Fields',
+		name: 'additionalFields',
+		type: 'collection',
+		placeholder: 'Add Field',
+		default: {},
+		displayOptions: { show: { resource: ['application'], operation: ['create', 'update'] } },
+		options: [
+			{ displayName: 'Archived', name: 'archived', type: 'boolean', default: false, description: 'Whether the application is archived. Only used by Update and Bulk Update.' },
+			{ displayName: 'Contacts (JSON)', name: 'contacts', type: 'json', default: '[]', description: 'Array of { name, role, type, email, phone }' },
+			{ displayName: 'Cover Letter Name', name: 'coverLetterName', type: 'string', default: '' },
+			{ displayName: 'Cover Letter URL', name: 'coverLetterUrl', type: 'string', default: '' },
+			{ displayName: 'Follow-Up At', name: 'followUpAt', type: 'dateTime', default: '' },
+			{ displayName: 'Follow-Up Note', name: 'followUpNote', type: 'string', default: '' },
+			{ displayName: 'Job Description', name: 'jobDescription', type: 'string', typeOptions: { rows: 6 }, default: '' },
+			{ displayName: 'Location', name: 'location', type: 'string', default: '' },
+			{ displayName: 'Notes', name: 'notes', type: 'string', typeOptions: { rows: 4 }, default: '' },
+			{ displayName: 'Resume File Name', name: 'resumeFileName', type: 'string', default: '' },
+			{ displayName: 'Resume File URL', name: 'resumeFileUrl', type: 'string', default: '' },
+			{ displayName: 'Resume ID (Linked)', name: 'resumeId', type: 'string', default: '' },
+			{ displayName: 'Salary', name: 'salary', type: 'string', default: '' },
+			{ displayName: 'Source', name: 'source', type: 'string', default: '' },
+			{ displayName: 'Source URL', name: 'sourceUrl', type: 'string', default: '' },
+			{ displayName: 'Stage', name: 'status', type: 'options', default: 'saved', options: stageOptions },
+			{ displayName: 'Tags (Comma-Separated)', name: 'tags', type: 'string', default: '' },
+		],
+	},
+	// bulk ops
+	{
+		displayName: 'Application IDs (Comma-Separated)',
+		name: 'ids',
+		type: 'string',
+		required: true,
+		default: '',
+		displayOptions: { show: { resource: ['application'], operation: ['bulkUpdate', 'bulkDelete'] } },
+		description: 'Comma-separated list of application IDs',
+	},
+	{
+		displayName: 'Bulk Update',
+		name: 'bulkUpdate',
+		type: 'collection',
+		placeholder: 'Add Change',
+		default: {},
+		displayOptions: { show: { resource: ['application'], operation: ['bulkUpdate'] } },
+		options: [
+			{ displayName: 'Archive', name: 'archived', type: 'boolean', default: true },
+			{ displayName: 'Stage', name: 'status', type: 'options', default: 'applied', options: stageOptions },
+			{ displayName: 'Tags to Add (Comma-Separated)', name: 'tags', type: 'string', default: '' },
+		],
+	},
+	{
+		displayName: 'Applications (JSON)',
+		name: 'applications',
+		type: 'json',
+		required: true,
+		default: '[]',
+		displayOptions: { show: { resource: ['application'], operation: ['bulkImport'] } },
+		description: 'Array of { company, role, ... } rows, e.g. parsed from a CSV.',
+	},
+	// timeline notes
+	{
+		displayName: 'Note',
+		name: 'note',
+		type: 'string',
+		typeOptions: { rows: 4 },
+		required: true,
+		default: '',
+		displayOptions: { show: { resource: ['application'], operation: ['logNote'] } },
+	},
+	{
+		displayName: 'Date (YYYY-MM-DD)',
+		name: 'noteDate',
+		type: 'string',
+		default: '',
+		displayOptions: { show: { resource: ['application'], operation: ['logNote'] } },
+		description: 'Optional timeline date, defaults to today',
+	},
+	// interviews are tracked as timeline notes (Log Note) — the API has no dedicated interview endpoints
+	{
+		displayName: 'Timeline Entry ID',
+		name: 'timelineEntryId',
+		type: 'string',
+		required: true,
+		default: '',
+		displayOptions: { show: { resource: ['application'], operation: ['updateTimelineEntry', 'deleteTimelineEntry'] } },
+	},
+	{
+		displayName: 'Timeline Update',
+		name: 'timelineUpdate',
+		type: 'collection',
+		placeholder: 'Add Field',
+		default: {},
+		displayOptions: { show: { resource: ['application'], operation: ['updateTimelineEntry'] } },
+		options: [
+			{ displayName: 'Date (YYYY-MM-DD)', name: 'date', type: 'string', default: '' },
+			{ displayName: 'Note', name: 'note', type: 'string', typeOptions: { rows: 4 }, default: '' },
+		],
+	},
+];

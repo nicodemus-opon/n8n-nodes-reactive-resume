@@ -1,0 +1,34 @@
+# Publishing for n8n Creator Portal verification.
+# From May 1st 2026 n8n only accepts verified nodes published via GitHub
+# Actions with an npm provenance statement (no local `npm publish`).
+# Usage: bump `version` in package.json, push a tag like v0.1.0, and this
+# workflow builds, lints, tests, then publishes with provenance.
+name: Release to npm with provenance
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: read
+  id-token: write # required for npm provenance
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: 'https://registry.npmjs.org'
+
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test
+      - run: npm run build
+      - run: npm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

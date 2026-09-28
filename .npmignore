@@ -1,0 +1,7 @@
+# npm packaging: keep the published tarball lean for n8n verification.
+# `files: ["dist"]` in package.json already limits inclusion to dist/,
+# these patterns drop build by-products that must not ship.
+dist/tsconfig.tsbuildinfo
+dist/**/*.tsbuildinfo
+*.tsbuildinfo
+.DS_Store
